@@ -159,6 +159,7 @@ test('datepicker', async ({ page }) => {
   await page1.locator('i').click();
   await page1.getByRole('cell', { name: '30' }).nth(1).click();
 });
+\\ABCD
 
 test('autocomplete', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
