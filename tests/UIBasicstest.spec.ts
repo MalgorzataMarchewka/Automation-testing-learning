@@ -1,3 +1,5 @@
+import { DatepickerPage } from "./DatePicker";
+
 const {test} = require("@playwright/test");
 
 
@@ -37,7 +39,8 @@ test('test reset', async ({ page }) => {
 
 
 test('datepicker2', async ({ page }) => {
-  await page.goto('https://jqueryui.com/datepicker/');
+const datepickerPage = new DatepickerPage(page);
+await datepickerPage.navigate('https://jqueryui.com/datepicker/')
   await page.frameLocator('iframe').locator('#datepicker').click();
   await page.frameLocator('iframe').getByRole('link', { name: '29' }).click();
 });
@@ -159,7 +162,6 @@ test('datepicker', async ({ page }) => {
   await page1.locator('i').click();
   await page1.getByRole('cell', { name: '30' }).nth(1).click();
 });
-\\ABCD
 
 test('autocomplete', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
@@ -183,3 +185,5 @@ test('ajaxloader', async ({ page }) => {
   await page1.getByText('CLICK ME!').click();
   await page1.getByRole('button', { name: 'Close' }).click();
 });
+
+
