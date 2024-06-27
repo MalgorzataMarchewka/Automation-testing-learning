@@ -1,12 +1,11 @@
+import test from "node:test";
+import { AjaxLoaderPage } from "./AjaxLoaderPage";
 import { DatepickerPage } from "./DatePicker";
 
-const {test} = require("@playwright/test");
 
 
 
 test('Browser Context Playwright test', async ({browser})=>
-{
-
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto("https://rahulshettyacademy.com/loginpagePractise/");
@@ -21,7 +20,7 @@ test('Browser Context university test', async ({browser})=>
   await page.locator("dev toolsy")
 });
 
-test('test reset', async ({ page }) => {
+test('test reset', async ({page}) => {
   await page.goto('https://webdriveruniversity.com/');
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
@@ -46,7 +45,8 @@ await datepickerPage.navigate('https://jqueryui.com/datepicker/')
 });
 
 test('ajax-loader', async ({ page }) => {
-  await page.goto('https://loading.io/');
+  const ajaxLoaderPage = new AjaxLoaderPage(page);
+  await ajaxLoaderPage.navigate('https://loading.io/')
   await page.getByRole('link', { name: 'Get Start' }).click();
   await page.locator('div:nth-child(12) > .spr').first().click();
   await page.getByText('Save as Asset', { exact: true }).click();
@@ -155,7 +155,8 @@ test('radio buttons', async ({ page }) => {
 });
 
 test('datepicker', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
+  const datepickerPage = new DatepickerPage(page);
+  await datepickerPage.navigate('https://webdriveruniversity.com/')
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'DATEPICKER Datepicker What' }).click();
   const page1 = await page1Promise;

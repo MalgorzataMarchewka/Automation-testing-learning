@@ -2,6 +2,9 @@
 import { Page } from "@playwright/test";
 
  export class NavigationPage {
+    navigate(arg0: string) {
+      throw new Error("Method not implemented.");
+    }
 
     readonly page: Page
     constructor(page: Page){
