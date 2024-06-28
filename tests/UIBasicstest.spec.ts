@@ -1,6 +1,9 @@
 import test from "node:test";
 import { AjaxLoaderPage } from "./AjaxLoaderPage";
 import { DatepickerPage } from "./DatePicker";
+import { AutocompletePage } from "./AutocompletePage";
+import { NavigationPage } from "./Page-objects/NavigationPage";
+import { DropdownCheckboxesPage } from "./DropdownCheckboxesPage";
 
 
 
@@ -21,7 +24,8 @@ test('Browser Context university test', async ({browser})=>
 });
 
 test('test reset', async ({page}) => {
-  await page.goto('https://webdriveruniversity.com/');
+  const navigationPage = new NavigationPage(page);
+  await navigationPage.FillInForm("https://webdriveruniversity.com/")
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
   const page1 = await page1Promise;
@@ -105,7 +109,8 @@ test('fill all', async ({ page }) => {
 });
 
 test('dropdown ect.', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
+  const dropdownCheckboxesPage = new DropdownCheckboxesPage(page);
+  await dropdownCheckboxesPage.selectDropdownOptions('https://webdriveruniversity.com/')
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
   const page1 = await page1Promise;
@@ -165,7 +170,8 @@ test('datepicker', async ({ page }) => {
 });
 
 test('autocomplete', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
+  const autocompletePage = new AutocompletePage(page);
+  await autocompletePage.submitAutocomplete('https://webdriveruniversity.com/')
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'AUTOCOMPLETE TEXTFIELD' }).click();
   const page1 = await page1Promise;
@@ -179,7 +185,8 @@ test('autocomplete', async ({ page }) => {
 });
 
 test('ajaxloader', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
+  const ajaxLoaderPage = new AjaxLoaderPage(page);
+  await ajaxLoaderPage.navigate('https://webdriveruniversity.com/')
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'AJAX LOADER Wait..... for the' }).click();
   const page1 = await page1Promise;
