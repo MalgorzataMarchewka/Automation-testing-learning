@@ -1,7 +1,7 @@
 import { BasePage } from './BasePage';
 
 export class DropdownCheckboxesPage extends BasePage {
-  async selectDropdownOptions() {
+  async selectDropdownOptions(p0: string) {
     await this.page.locator('#dropdowm-menu-1').selectOption('c#');
     await this.page.locator('#dropdowm-menu-2').selectOption('maven');
     await this.page.locator('#dropdowm-menu-3').selectOption('css');

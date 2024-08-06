@@ -23,21 +23,14 @@ test('Browser Context university test', async ({browser})=>
   await page.locator("dev toolsy")
 });
 
-test('test reset', async ({page}) => {
-  const navigationPage = new NavigationPage(page);
-  await navigationPage.FillInForm("https://webdriveruniversity.com/")
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
-  const page1 = await page1Promise;
-  await page1.getByPlaceholder('First Name').click();
-  await page1.getByPlaceholder('First Name').fill('Gosia');
-  await page1.getByPlaceholder('Last Name').click();
-  await page1.getByPlaceholder('Last Name').fill('Marchewka');
-  await page1.getByPlaceholder('Email Address').click();
-  await page1.getByPlaceholder('Email Address').fill('gosia.test@mail.com');
-  await page1.getByPlaceholder('Comments').click();
-  await page1.getByPlaceholder('Comments').fill('Test');
-  await page1.getByRole('button', { name: 'RESET' }).click();
+test('test reset', async ({ page }) => {
+  const homePage = new HomePage(page);
+  const contactUsPage = new ContactUsPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const contactPage = await homePage.clickContactUs();
+  await contactPage.fillForm('Gosia', 'Marchewka', 'gosia.test@mail.com', 'Test');
+  await contactPage.resetForm();
 });
 
 
@@ -65,47 +58,34 @@ test('test', async ({ page }) => {
 });
 
 test('not all data', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
-  const page1 = await page1Promise;
-  await page1.getByPlaceholder('First Name').click();
-  await page1.getByPlaceholder('First Name').fill('Gosia');
-  await page1.getByPlaceholder('Last Name').click();
-  await page1.getByPlaceholder('Last Name').fill('Test');
-  await page1.getByRole('button', { name: 'SUBMIT' }).click();
-  await page1.getByText('Error: all fields are').click();
+  const homePage = new HomePage(page);
+  const contactUsPage = new ContactUsPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const contactPage = await homePage.clickContactUs();
+  await contactPage.fillForm('Gosia', 'Test', '', '');
+  await contactPage.submitForm();
+  await contactPage.verifyError();
 });
 
 test('wrong mail', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
-  const page1 = await page1Promise;
-  await page1.getByPlaceholder('First Name').click();
-  await page1.getByPlaceholder('First Name').fill('Gosia');
-  await page1.getByPlaceholder('Last Name').click();
-  await page1.getByPlaceholder('Last Name').fill('Test');
-  await page1.getByPlaceholder('Email Address').click();
-  await page1.getByPlaceholder('Email Address').fill('gosia@mail.');
-  await page1.getByPlaceholder('Comments').click();
-  await page1.getByPlaceholder('Comments').fill('Test');
-  await page1.getByRole('button', { name: 'SUBMIT' }).click();
+  const homePage = new HomePage(page);
+  const contactUsPage = new ContactUsPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const contactPage = await homePage.clickContactUs();
+  await contactPage.fillForm('Gosia', 'Test', 'gosia@mail.', 'Test');
+  await contactPage.submitForm();
 });
+
 test('fill all', async ({ page }) => {
-  await page.goto('https://webdriveruniversity.com/');
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'CONTACT US Contact Us Form' }).click();
-  const page1 = await page1Promise;
-  await page1.getByPlaceholder('First Name').click();
-  await page1.getByPlaceholder('First Name').fill('Gosia');
-  await page1.getByPlaceholder('Last Name').click();
-  await page1.getByPlaceholder('Last Name').fill('Test');
-  await page1.getByPlaceholder('Email Address').click();
-  await page1.getByPlaceholder('Email Address').fill('mail@mail.com');
-  await page1.getByPlaceholder('Comments').click();
-  await page1.getByPlaceholder('Comments').fill('test');
-  await page1.getByRole('button', { name: 'SUBMIT' }).click();
+  const homePage = new HomePage(page);
+  const contactUsPage = new ContactUsPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const contactPage = await homePage.clickContactUs();
+  await contactPage.fillForm('Gosia', 'Test', 'mail@mail.com', 'test');
+  await contactPage.submitForm();
 });
 
 test('dropdown ect.', async ({ page }) => {
@@ -115,6 +95,7 @@ test('dropdown ect.', async ({ page }) => {
   await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
   const page1 = await page1Promise;
 });
+
 
 test('dropdown check', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
@@ -133,6 +114,15 @@ test('dropdown check', async ({ page }) => {
 });
 
 test('checboxes', async ({ page }) => {
+  const homePage = new HomePage(page);
+  const dropdownCheckboxesPage = new DropdownCheckboxesPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const dropdownPage = await homePage.clickDropdownCheckboxes();
+  await dropdownPage.toggleCheckboxes();
+});
+
+test('checboxes', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
@@ -143,6 +133,19 @@ test('checboxes', async ({ page }) => {
   await page1.getByLabel('Option 2').uncheck();
   await page1.getByLabel('Option 4').uncheck();
 });
+
+async selectRadioButtons() {
+  await this.page.locator('input[name="color"]').first().check();
+  await this.page.locator('input[name="color"]').nth(1).check();
+  await this.page.locator('div').filter({ hasText: 'Green Blue Yellow Orange' }).nth(3).click();
+  await this.page.locator('input[name="color"]').nth(2).check();
+  await this.page.locator('input[name="color"]').nth(3).check();
+  await this.page.locator('input[name="color"]').nth(4).check();
+  await this.page.locator('input[name="color"]').nth(1).check();
+  await this.page.locator('input[name="color"]').first().check();
+  await this.page.locator('input[name="color"]').nth(2).check();
+}
+}
 test('radio buttons', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
   const page1Promise = page.waitForEvent('popup');
@@ -160,28 +163,21 @@ test('radio buttons', async ({ page }) => {
 });
 
 test('datepicker', async ({ page }) => {
+  const homePage = new HomePage(page);
   const datepickerPage = new DatepickerPage(page);
-  await datepickerPage.navigate('https://webdriveruniversity.com/')
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'DATEPICKER Datepicker What' }).click();
-  const page1 = await page1Promise;
-  await page1.locator('i').click();
-  await page1.getByRole('cell', { name: '30' }).nth(1).click();
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const datepickerPopup = await homePage.clickDatepicker();
+  await datepickerPopup.selectDate('30');
 });
 
 test('autocomplete', async ({ page }) => {
+  const homePage = new HomePage(page);
   const autocompletePage = new AutocompletePage(page);
-  await autocompletePage.submitAutocomplete('https://webdriveruniversity.com/')
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'AUTOCOMPLETE TEXTFIELD' }).click();
-  const page1 = await page1Promise;
-  await page1.getByPlaceholder('Food Item').click();
-  await page1.getByPlaceholder('Food Item').fill('ca');
-  await page1.getByText('Carrots').click();
-  await page1.getByPlaceholder('Food Item').click();
-  await page1.getByPlaceholder('Food Item').fill('app');
-  await page1.getByText('Apple').click();
-  await page1.getByRole('button', { name: 'Submit' }).click();
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const autocompletePopup = await homePage.clickAutocomplete();
+  await autocompletePopup.fillAutocomplete('ca', 'Carrots');
+  await autocompletePopup.fillAutocomplete('app', 'Apple');
+  await autocompletePopup.submitAutocomplete();
 });
 
 test('ajaxloader', async ({ page }) => {
@@ -194,4 +190,17 @@ test('ajaxloader', async ({ page }) => {
   await page1.getByRole('button', { name: 'Close' }).click();
 });
 
+test('ajaxloader', async ({ page }) => {
+  const homePage = new HomePage(page);
+  const ajaxLoaderPage = new AjaxLoaderPage(page);
+
+  await homePage.navigate('https://webdriveruniversity.com/');
+  const ajaxLoaderPopup = await homePage.clickAjaxLoader();
+  await ajaxLoaderPopup.clickAjaxButton();
+});
+
+
+function selectRadioButtons() {
+  throw new Error("Function not implemented.");
+}
 
