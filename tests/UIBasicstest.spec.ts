@@ -52,21 +52,20 @@ test('ajax-loader', async ({ page }) => {
 test('test', async ({ page }) => {
   await page.goto('https://www.google.pl/');
   await page.getByRole('button', { name: 'Zaakceptuj wszystko' }).click();
-  await page.locator('.SDkEP').click();
   await page.getByLabel('Szukaj', { exact: true }).fill('Jamnik');
   await page.getByRole('button', { name: 'Dachshunds | K9 Nation |' }).click();
 });
 
+
 test('not all data', async ({ page }) => {
   const homePage = new HomePage(page);
-  const contactUsPage = new ContactUsPage(page);
+  const contactUsPage = await homePage.navigate('https://webdriveruniversity.com/').then(() => homePage.clickContactUs());
 
-  await homePage.navigate('https://webdriveruniversity.com/');
-  const contactPage = await homePage.clickContactUs();
-  await contactPage.fillForm('Gosia', 'Test', '', '');
-  await contactPage.submitForm();
-  await contactPage.verifyError();
+  await contactUsPage.fillForm('Gosia', 'Test', '', '');
+  await contactUsPage.submitForm();
+  await contactUsPage.verifyError();
 });
+
 
 test('wrong mail', async ({ page }) => {
   const homePage = new HomePage(page);
@@ -102,15 +101,18 @@ test('dropdown check', async ({ page }) => {
   const page1Promise = page.waitForEvent('popup');
   await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
   const page1 = await page1Promise;
-  await page1.locator('#dropdowm-menu-1').selectOption('c#');
-  await page1.locator('#dropdowm-menu-2').selectOption('maven');
-  await page1.locator('#dropdowm-menu-3').selectOption('css');
-  await page1.locator('#dropdowm-menu-1').selectOption('python');
-  await page1.locator('#dropdowm-menu-2').selectOption('testng');
-  await page1.locator('#dropdowm-menu-3').selectOption('javascript');
-  await page1.locator('#dropdowm-menu-1').selectOption('sql');
-  await page1.locator('#dropdowm-menu-2').selectOption('junit');
-  await page1.locator('#dropdowm-menu-3').selectOption('jquery');
+
+  const dropdownSelections = [
+    ['#dropdowm-menu-1', 'c#', 'python', 'sql'],
+    ['#dropdowm-menu-2', 'maven', 'testng', 'junit'],
+    ['#dropdowm-menu-3', 'css', 'javascript', 'jquery']
+  ];
+
+  for (const [selector, ...options] of dropdownSelections) {
+    for (const option of options) {
+      await page1.locator(selector).selectOption(option);
+    }
+  }
 });
 
 test('checboxes', async ({ page }) => {
@@ -122,44 +124,56 @@ test('checboxes', async ({ page }) => {
   await dropdownPage.toggleCheckboxes();
 });
 
-test('checboxes', async ({ page }) => {
+test('checkboxes', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
-  const page1 = await page1Promise;
-  await page1.getByText('Option 1').click();
-  await page1.getByText('Option 2').click();
-  await page1.getByLabel('Option 4').check();
-  await page1.getByLabel('Option 2').uncheck();
-  await page1.getByLabel('Option 4').uncheck();
+  const page1 = await page.waitForEvent('popup', () => 
+    page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click()
+  );
+
+  const actions = [
+    { text: 'Option 1', action: 'click' },
+    { text: 'Option 2', action: 'click' },
+    { label: 'Option 4', action: 'check' },
+    { label: 'Option 2', action: 'uncheck' },
+    { label: 'Option 4', action: 'uncheck' }
+  ];
+
+  for (const { text, label, action } of actions) {
+    if (text) {
+      await page1.getByText(text)[action]();
+    } else if (label) {
+      await page1.getByLabel(label)[action]();
+    }
+  }
 });
 
+
 async selectRadioButtons() {
-  await this.page.locator('input[name="color"]').first().check();
-  await this.page.locator('input[name="color"]').nth(1).check();
+  const radioButtons = this.page.locator('input[name="color"]');
+
+  const indicesToCheck = [0, 1, 2, 3, 4, 1, 0, 2];
+  for (const index of indicesToCheck) {
+    await radioButtons.nth(index).check();
+  }
+
   await this.page.locator('div').filter({ hasText: 'Green Blue Yellow Orange' }).nth(3).click();
-  await this.page.locator('input[name="color"]').nth(2).check();
-  await this.page.locator('input[name="color"]').nth(3).check();
-  await this.page.locator('input[name="color"]').nth(4).check();
-  await this.page.locator('input[name="color"]').nth(1).check();
-  await this.page.locator('input[name="color"]').first().check();
-  await this.page.locator('input[name="color"]').nth(2).check();
+}
 }
 }
 test('radio buttons', async ({ page }) => {
   await page.goto('https://webdriveruniversity.com/');
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click();
-  const page1 = await page1Promise;
-  await page1.locator('input[name="color"]').first().check();
-  await page1.locator('input[name="color"]').nth(1).check();
+  const page1 = await page.waitForEvent('popup', () => 
+    page.getByRole('link', { name: 'DROPDOWN, CHECKBOXE(S) &' }).click()
+  );
+
+  const radioButtons = page1.locator('input[name="color"]');
+  const indicesToCheck = [0, 1, 2, 3, 4, 1, 0, 2];
+
+  for (const index of indicesToCheck) {
+    await radioButtons.nth(index).check();
+  }
+
   await page1.locator('div').filter({ hasText: 'Green Blue Yellow Orange' }).nth(3).click();
-  await page1.locator('input[name="color"]').nth(2).check();
-  await page1.locator('input[name="color"]').nth(3).check();
-  await page1.locator('input[name="color"]').nth(4).check();
-  await page1.locator('input[name="color"]').nth(1).check();
-  await page1.locator('input[name="color"]').first().check();
-  await page1.locator('input[name="color"]').nth(2).check();
 });
 
 test('datepicker', async ({ page }) => {
@@ -172,23 +186,27 @@ test('datepicker', async ({ page }) => {
 
 test('autocomplete', async ({ page }) => {
   const homePage = new HomePage(page);
-  const autocompletePage = new AutocompletePage(page);
-  await homePage.navigate('https://webdriveruniversity.com/');
-  const autocompletePopup = await homePage.clickAutocomplete();
+  const autocompletePopup = await homePage.navigate('https://webdriveruniversity.com/')
+    .then(() => homePage.clickAutocomplete());
+
   await autocompletePopup.fillAutocomplete('ca', 'Carrots');
   await autocompletePopup.fillAutocomplete('app', 'Apple');
   await autocompletePopup.submitAutocomplete();
 });
 
+
 test('ajaxloader', async ({ page }) => {
   const ajaxLoaderPage = new AjaxLoaderPage(page);
-  await ajaxLoaderPage.navigate('https://webdriveruniversity.com/')
-  const page1Promise = page.waitForEvent('popup');
-  await page.getByRole('link', { name: 'AJAX LOADER Wait..... for the' }).click();
-  const page1 = await page1Promise;
+  await ajaxLoaderPage.navigate('https://webdriveruniversity.com/');
+
+  const page1 = await page.waitForEvent('popup', async () => {
+    await page.getByRole('link', { name: 'AJAX LOADER Wait..... for the' }).click();
+  });
+
   await page1.getByText('CLICK ME!').click();
   await page1.getByRole('button', { name: 'Close' }).click();
 });
+
 
 test('ajaxloader', async ({ page }) => {
   const homePage = new HomePage(page);
@@ -204,3 +222,109 @@ function selectRadioButtons() {
   throw new Error("Function not implemented.");
 }
 
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+  await page.locator('[data-test="username"]').click();
+  await page.locator('[data-test="username"]').fill('Gosia');
+  await page.locator('[data-test="password"]').click();
+  await page.locator('[data-test="password"]').fill('Password1!');
+  await page.locator('[data-test="login-button"]').click();
+  await page.locator('[data-test="error-button"]').click();
+  await page.locator('[data-test="username"]').click();
+  await page.locator('[data-test="username"]').fill('');
+  await page.locator('[data-test="password"]').click();
+  await page.locator('[data-test="password"]').fill('');
+  await page.locator('[data-test="username"]').click();
+  await page.locator('[data-test="username"]').fill('standard_user');
+  await page.locator('#login_button_container div').nth(3).click();
+  await page.locator('[data-test="password"]').click();
+  await page.locator('[data-test="password"]').fill('secret_sauce');
+  await page.locator('[data-test="login-button"]').click();
+});
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+  await page.locator('[data-test="username"]').click();
+  await page.locator('[data-test="username"]').fill('problem_user');
+  await page.locator('[data-test="password"]').click();
+  await page.locator('[data-test="password"]').fill('secret_sauce');
+  await page.locator('[data-test="login-button"]').click();
+  await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click();
+  await page.locator('[data-test="remove-sauce-labs-backpack"]').click();
+  await page.locator('[data-test="add-to-cart-sauce-labs-fleece-jacket"]').click();
+  await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click();
+});
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+  await page.locator('[data-test="username"]').click();
+  await page.locator('[data-test="username"]').fill('problem_user');
+  await page.locator('[data-test="password"]').click();
+  await page.locator('[data-test="password"]').fill('secret_sauce');
+  await page.locator('[data-test="login-button"]').click();
+  await page.locator('[data-test="product-sort-container"]').selectOption('za');
+  await page.locator('[data-test="product-sort-container"]').selectOption('lohi');
+  await page.getByText('Name (A to Z)Name (A to Z)').click();
+  await page.getByRole('button', { name: 'Open Menu' }).click();
+  await page.locator('[data-test="inventory-sidebar-link"]').click();
+  await page.locator('[data-test="about-sidebar-link"]').click();
+});
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://saucelabs.com/error/404');
+});
+
+import { test, expect } from '@playwright/test';
+
+test('Complete purchase flow on Sauce Demo', async ({ page }) => {
+  await page.goto('https://www.saucedemo.com/');
+  
+  // Login
+  await page.fill('[data-test="username"]', 'standard_user');
+  await page.fill('[data-test="password"]', 'secret_sauce');
+  await page.click('[data-test="login-button"]');
+
+  // Add items to cart
+  const items = [
+    'sauce-labs-backpack', 
+    'sauce-labs-bike-light', 
+    'sauce-labs-bolt-t-shirt', 
+    'sauce-labs-fleece-jacket'
+  ];
+  for (const item of items) {
+    await page.click(`[data-test="add-to-cart-${item}"]`);
+  }
+
+  // Navigate to cart and remove an item
+  await page.click('[data-test="shopping-cart-link"]');
+  await page.click('[data-test="remove-sauce-labs-fleece-jacket"]');
+
+  // Proceed to checkout
+  await page.click('[data-test="checkout"]');
+  await page.fill('[data-test="firstName"]', 'Test');
+  await page.fill('[data-test="lastName"]', 'Name');
+  await page.fill('[data-test="postalCode"]', '10005');
+  await page.click('[data-test="continue"]');
+
+  // Finish purchase and return to products page
+  await page.click('[data-test="finish"]');
+  await page.click('[data-test="back-to-products"]');
+});
+
+import { test } from '@playwright/test';
+import { LoginPage } from './loginPage';
+
+test('Complete purchase flow on Sauce Demo', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.login('standard_user', 'secret_sauce');
+
+  // Continue with the rest of the test...
+});
